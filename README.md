@@ -1,6 +1,6 @@
 # `wethr`
 
-[![Build Status][travis-badge]][travis-url]
+[![Build status][build-status-badge]][build-status-url]
 [![Crates.io][crates-badge]][crates-url]
 [![License][license-badge]][license-url]
 
@@ -48,8 +48,8 @@ This project was inspired by [twobucks's wethr][wethr].
 
 This project is licensed under the [MIT license](LICENSE).
 
-[travis-badge]: https://travis-ci.com/risoflora/wethr.svg
-[travis-url]: https://travis-ci.com/risoflora/wethr
+[build-status-badge]: https://github.com/risoflora/wethr/actions/workflows/CI.yml/badge.svg?branch=master
+[build-status-url]: https://github.com/risoflora/wethr/actions/workflows/CI.yml
 [crates-badge]: https://img.shields.io/crates/v/wethr.svg
 [crates-url]: https://crates.io/crates/wethr
 [license-badge]: https://img.shields.io/crates/l/wethr.svg

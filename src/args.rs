@@ -19,14 +19,16 @@ impl Args {
     #[inline]
     fn new() -> OptsOptions {
         let mut opts = OptsOptions::new();
-        opts.optflag("m", "metric", "Weather in metric units (Compatibility)")
-            .optflag("i", "imperial", "Weather in imperial units (Compatibility)")
+        opts.optflag("m", "metric", "Weather in metric units (compatibility)")
+            .optflag("i", "imperial", "Weather in imperial units (compatibility)")
             .optopt(
                 "u",
                 "unit",
                 "Unit of measurement",
                 "[C]elsius or [F]ahrenheit",
             )
+            .optopt("c", "connect-timeout", "Connect timeout (in seconds)", "5")
+            .optopt("t", "timeout", "Timeout (in seconds)", "30")
             .optflag("v", "version", "Print program version")
             .optflag("h", "help", "Print this help menu");
         opts
@@ -48,6 +50,16 @@ impl Args {
                 None
             }
         }
+    }
+
+    #[inline]
+    fn parse_connect_timeout(matches: &Matches) -> Option<u64> {
+        matches.opt_get("c").unwrap_or_default()
+    }
+
+    #[inline]
+    fn parse_timeout(matches: &Matches) -> Option<u64> {
+        matches.opt_get("t").unwrap_or_default()
     }
 
     #[inline]
@@ -74,6 +86,8 @@ impl Args {
         let args = Self {
             0: Options {
                 units: Self::parse_units(&matches),
+                connect_timeout: Self::parse_connect_timeout(&matches),
+                timeout: Self::parse_timeout(&matches),
                 version: Self::parse_version(&matches),
                 help: Self::parse_help(&opts, &matches),
             },

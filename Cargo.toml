@@ -1,0 +1,25 @@
+[package]
+name = "wethr"
+version = "0.1.0"
+authors = ["Silvio Clecio (silvioprog) <silvioprog@gmail.com>"]
+license = "MIT"
+description = "Command line weather tool."
+homepage = "https://github.com/risoflora/wethr"
+repository = "https://github.com/risoflora/wethr"
+readme = "README.md"
+keywords = ["celsius", "fahrenheit", "temperature", "weather"]
+categories = ["command-line-utilities", "network-programming"]
+edition = "2018"
+
+[profile.release]
+lto = true
+
+[dependencies]
+thiserror = "1.0"
+anyhow = "1.0"
+getopts = "0.2"
+tokio = { version = "1", features = ["macros"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+reqwest = { version = "0.11", features = ["gzip", "json", "native-tls"] }
+indicatif = "0.16"

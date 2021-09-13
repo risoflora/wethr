@@ -16,6 +16,12 @@ Supported platforms: Linux, Windows and MacOS.
 cargo install wethr
 ```
 
+## Docker
+
+```bash
+docker run -it risoflora/wethr
+```
+
 ## Examples
 
 Get current weather:
@@ -39,6 +45,14 @@ wethr --imperial
 ## Contributions
 
 Pull Requests and Issues are welcome!
+
+## Whish list
+
+- [ ] Binaries
+- [ ] Tests
+- [ ] Proxy support
+- [ ] Query by country/city
+- [ ] Silent mode
 
 ## Thanks
 

@@ -1,4 +1,4 @@
-use indicatif::{ProgressBar, ProgressStyle};
+use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
 use std::{future::Future, time::Duration};
 use tokio::{select, time::interval};
 
@@ -12,7 +12,7 @@ pub struct Spinner {
 impl Spinner {
     pub fn new() -> Self {
         Spinner {
-            inner: ProgressBar::new_spinner().with_style(
+            inner: ProgressBar::with_draw_target(!0, ProgressDrawTarget::stdout()).with_style(
                 ProgressStyle::default_spinner()
                     .tick_strings(TICK_STRINGS)
                     .template(&Self::format_tpl("blue")),

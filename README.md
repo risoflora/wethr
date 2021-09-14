@@ -22,6 +22,23 @@ cargo install wethr
 docker run -it risoflora/wethr
 ```
 
+## Usage
+
+```
+Usage: wethr [options]
+
+Options:
+    -m, --metric        Weather in metric units (compatibility)
+    -i, --imperial      Weather in imperial units (compatibility)
+    -u, --unit [C]elsius or [F]ahrenheit
+                        Unit of measurement
+    -c, --connect-timeout 5
+                        Connect timeout (in seconds)
+    -t, --timeout 30    Timeout (in seconds)
+    -v, --version       Print program version
+    -h, --help          Print this help menu
+```
+
 ## Examples
 
 Get current weather:
@@ -50,9 +67,11 @@ Pull Requests and Issues are welcome!
 
 - [x] Binaries
 - [ ] Tests
-- [ ] Proxy support
-- [ ] Query by country/city
 - [ ] Silent mode
+- [ ] Full info
+- [ ] Forecast
+- [ ] Query by country/city
+- [ ] Proxy support
 
 ## Thanks
 

@@ -8,6 +8,7 @@
 # docker run --rm -t wethr
 
 FROM rust as builder
+ENV DEBCONF_NOWARNINGS="yes"
 RUN apt-get update && apt-get install musl-tools -y && rustup target add x86_64-unknown-linux-musl
 WORKDIR /app
 COPY . /app

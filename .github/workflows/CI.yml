@@ -82,7 +82,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') && matrix.job.os == 'windows-latest'
         run: |
           cd ./target/${{ matrix.job.target }}/release/
-          strip ${{ env.PROGRAM_NAME }}.exe
           Compress-Archive -CompressionLevel Optimal -Force -Path ${{ env.PROGRAM_NAME }}.exe -DestinationPath ${{ env.PROGRAM_NAME }}-${{ matrix.job.target }}.zip
 
       - name: Publish to GitHub releases

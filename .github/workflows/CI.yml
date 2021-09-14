@@ -1,21 +1,108 @@
-name: CI
+######################################################################
+# Copyright (c) 2021 Silvio Clecio (silvioprog) <silvioprog@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+######################################################################
 
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+name: CI/CD
+
+on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.job.target }}
+    runs-on: ${{ matrix.job.os }}
+
+    strategy:
+      matrix:
+        job:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            publish: true
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    env:
+      PROGRAM_NAME: wethr
+      USER_NAME: silvioprog
+      ORGANIZATION_NAME: risoflora
 
     steps:
-      - uses: actions/checkout@v2
-      - name: Build
-        run: cargo build --verbose
-      - name: Run tests
-        run: cargo test --verbose
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          components: rustfmt
+          target: ${{ matrix.job.target }}
+
+      - name: Cargo cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --target=${{ matrix.job.target }}
+
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target=${{ matrix.job.target }}
+
+      - name: Compress binaries (Unix)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.job.os != 'windows-latest'
+        run: |
+          cd ./target/${{ matrix.job.target }}/release/
+          strip ${{ env.PROGRAM_NAME }}
+          zip ${{ env.PROGRAM_NAME }}-${{ matrix.job.target }}.zip ${{ env.PROGRAM_NAME }}
+
+      - name: Compress binaries (Windows)
+        if: startsWith(github.ref, 'refs/tags/') && matrix.job.os == 'windows-latest'
+        run: |
+          cd ./target/${{ matrix.job.target }}/release/
+          strip ${{ env.PROGRAM_NAME }}.exe
+          Compress-Archive -CompressionLevel Optimal -Force -Path ${{ env.PROGRAM_NAME }}.exe -DestinationPath ${{ env.PROGRAM_NAME }}-${{ matrix.job.target }}.zip
+
+      - name: Publish to GitHub releases
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: ./target/**/*.zip
+
+      - name: Publish to Crates
+        if: startsWith(github.ref, 'refs/tags/') && matrix.job.publish
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --token ${{ secrets.CARGO_TOKEN }} -v
+
+      - name: Publish to DockerHub
+        if: startsWith(github.ref, 'refs/tags/') && matrix.job.publish
+        run: |
+          docker build . -t ${{ env.ORGANIZATION_NAME }}/${{ env.PROGRAM_NAME }}
+          docker login -u ${{ env.USER_NAME }} -p ${{ secrets.DOCKER_TOKEN }}
+          docker push ${{ env.ORGANIZATION_NAME }}/${{ env.PROGRAM_NAME }}

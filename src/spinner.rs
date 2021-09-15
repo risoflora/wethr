@@ -117,10 +117,22 @@ impl Spinner {
 
 #[cfg(test)]
 mod tests {
-    use super::Spinner;
+    use super::{Spinner, SpinnerColor::*};
 
     #[tokio::test]
-    async fn spinner_all() {
+    async fn spinner_colors() {
+        assert_eq!(Black.to_string(), "black");
+        assert_eq!(Red.to_string(), "red");
+        assert_eq!(Green.to_string(), "green");
+        assert_eq!(Yellow.to_string(), "yellow");
+        assert_eq!(Blue.to_string(), "blue");
+        assert_eq!(Magenta.to_string(), "magenta");
+        assert_eq!(Cyan.to_string(), "cyan");
+        assert_eq!(White.to_string(), "white");
+    }
+
+    #[tokio::test]
+    async fn spinner_run() {
         let mut ran = false;
         Spinner::new()
             .run(async {

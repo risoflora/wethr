@@ -67,7 +67,7 @@ Pull Requests and Issues are welcome!
 
 - [x] Binaries
 - [x] Tests
-- [ ] Silent mode
+- [x] Silent mode
 - [ ] Full info
 - [ ] Forecast
 - [ ] Query by country/city

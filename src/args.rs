@@ -29,6 +29,7 @@ impl Args {
             )
             .optopt("c", "connect-timeout", "Connect timeout (in seconds)", "5")
             .optopt("t", "timeout", "Timeout (in seconds)", "30")
+            .optflag("s", "silent", "Silent mode")
             .optflag("v", "version", "Print program version")
             .optflag("h", "help", "Print this help menu");
         opts
@@ -63,6 +64,15 @@ impl Args {
     }
 
     #[inline]
+    fn parse_silent(matches: &Matches) -> Option<bool> {
+        if matches.opt_present("s") {
+            Some(true)
+        } else {
+            None
+        }
+    }
+
+    #[inline]
     fn parse_version(matches: &Matches) -> Option<String> {
         if matches.opt_present("v") {
             Some(consts::PROGRAM_VERSION.to_owned())
@@ -88,6 +98,7 @@ impl Args {
                 units: Self::parse_units(&matches),
                 connect_timeout: Self::parse_connect_timeout(&matches),
                 timeout: Self::parse_timeout(&matches),
+                silent: Self::parse_silent(&matches),
                 version: Self::parse_version(&matches),
                 help: Self::parse_help(&opts, &matches),
             },
@@ -154,6 +165,17 @@ mod tests {
     }
 
     #[test]
+    fn args_parse_silent() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.silent, None);
+
+        let opt = Args::parse(&["--silent".to_string()]).unwrap();
+        assert_eq!(opt.silent, Some(true));
+        let opt = Args::parse(&["-s".to_string()]).unwrap();
+        assert_eq!(opt.silent, Some(true));
+    }
+
+    #[test]
     fn args_parse_version() {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.version, None);
@@ -179,6 +201,7 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -s, --silent        Silent mode
     -v, --version       Print program version
     -h, --help          Print this help menu
 ";

@@ -4,7 +4,7 @@ use wethr::{
     args,
     client::{CLIENT_CONNECT_TIMEOUT, CLIENT_TIMEOUT},
     location::client::LocationClient,
-    spinner::Spinner,
+    spinner::{Spinner, SpinnerColor},
     weather::client::WeatherClient,
 };
 
@@ -15,10 +15,11 @@ async fn main() -> anyhow::Result<()> {
         println!("{}", text);
         process::exit(0);
     }
-    let spinner = Spinner::new();
+    let spinner = Spinner::new().set_silent(opts.silent.is_some());
     let connect_timeout = opts.connect_timeout.unwrap_or(CLIENT_CONNECT_TIMEOUT);
     let timeout = opts.timeout.unwrap_or(CLIENT_TIMEOUT);
     let location = spinner
+        .set_color(SpinnerColor::Blue)
         .set_message("Detecting your location")
         .run(
             LocationClient::new()
@@ -29,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
         .await?;
     let units = opts.units.unwrap_or_default();
     let weather = spinner
-        .set_color("yellow")
+        .set_color(SpinnerColor::Yellow)
         .set_message("Loading weather")
         .run(
             WeatherClient::new()
@@ -38,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
                 .get_with_units(&location.coordinates, units),
         )
         .await?;
-    spinner.println(format!(
+    spinner.print_message(format!(
         "{city}, {country}: {temperature}{units} {emoji}",
         city = location.city,
         country = location.country,

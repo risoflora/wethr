@@ -1,44 +1,92 @@
 use indicatif::{ProgressBar, ProgressDrawTarget, ProgressStyle};
-use std::{future::Future, time::Duration};
+use std::{
+    fmt::{Display, Formatter, Result},
+    future::Future,
+    time::Duration,
+};
 use tokio::{select, time::interval};
 
 const TICK_STRINGS: &[&str] = &["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum SpinnerColor {
+    Black,
+    Red,
+    Green,
+    Yellow,
+    Blue,
+    Magenta,
+    Cyan,
+    White,
+}
+
+impl Display for SpinnerColor {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        use SpinnerColor::*;
+        let color = match &self {
+            Black => "black",
+            Red => "red",
+            Green => "green",
+            Yellow => "yellow",
+            Blue => "blue",
+            Magenta => "magenta",
+            Cyan => "cyan",
+            White => "white",
+        };
+        write!(f, "{}", color)
+    }
+}
+
 #[derive(Debug)]
 pub struct Spinner {
-    inner: ProgressBar,
+    progress_bar: ProgressBar,
+    silent: bool,
 }
 
 impl Spinner {
     pub fn new() -> Self {
         Spinner {
-            inner: ProgressBar::with_draw_target(!0, ProgressDrawTarget::stdout()).with_style(
-                ProgressStyle::default_spinner()
-                    .tick_strings(TICK_STRINGS)
-                    .template(&Self::format_tpl("blue")),
-            ),
+            progress_bar: ProgressBar::with_draw_target(!0, ProgressDrawTarget::stdout()),
+            silent: false,
         }
     }
 
-    pub fn set_color(&self, color: &'static str) -> &Self {
-        self.inner.set_style(
-            ProgressStyle::default_spinner()
-                .tick_strings(TICK_STRINGS)
-                .template(&Self::format_tpl(color)),
-        );
+    pub fn set_silent(mut self, silent: bool) -> Self {
+        self.silent = silent;
+        if !self.silent {
+            self.progress_bar
+                .set_style(ProgressStyle::default_spinner().tick_strings(TICK_STRINGS));
+        }
+        self
+    }
+
+    pub fn set_color(&self, color: SpinnerColor) -> &Self {
+        if !self.silent {
+            self.progress_bar.set_style(
+                ProgressStyle::default_spinner()
+                    .tick_strings(TICK_STRINGS)
+                    .template(&Self::format_tpl(color)),
+            );
+        }
         self
     }
 
     pub fn set_message(&self, message: &'static str) -> &Self {
-        self.inner.set_message(message);
+        if !self.silent {
+            self.progress_bar.set_message(message);
+        }
         self
     }
 
-    pub fn println<T>(&self, message: T) -> &Self
+    pub fn print_message<T>(&self, message: T) -> &Self
     where
-        T: AsRef<str>,
+        T: AsRef<str> + Display,
     {
-        self.inner.println(message);
+        if self.silent {
+            println!("{}", message)
+        } else {
+            self.progress_bar.println(message);
+        }
         self
     }
 
@@ -50,7 +98,9 @@ impl Spinner {
             let mut intv = interval(Duration::from_millis(120));
             loop {
                 intv.tick().await;
-                self.inner.tick();
+                if !self.silent {
+                    self.progress_bar.tick();
+                }
             }
         };
         select! {
@@ -60,7 +110,7 @@ impl Spinner {
     }
 
     #[inline]
-    fn format_tpl(color: &'static str) -> String {
+    fn format_tpl(color: SpinnerColor) -> String {
         format!("{{spinner:.{color}}} {{msg}}", color = color)
     }
 }

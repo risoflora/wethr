@@ -8,20 +8,6 @@ Command line weather tool.
 
 [![Wethr tool][wethr-gif]][wethr-url]
 
-Supported platforms: Linux, Windows and MacOS.
-
-## Installation
-
-```bash
-cargo install wethr
-```
-
-## Docker
-
-```bash
-docker run -it risoflora/wethr
-```
-
 ## Usage
 
 ```
@@ -35,28 +21,26 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -s, --silent        Silent mode
     -v, --version       Print program version
     -h, --help          Print this help menu
 ```
 
-## Examples
+## Download
 
-Get current weather:
+Stable binaries for Linux, Windows and Mac OS are available for download at the
+[releases page](https://github.com/risoflora/wethr/releases).
+
+## Docker
 
 ```bash
-wethr
+docker run -it risoflora/wethr
 ```
 
-Get current weather in metric units:
+## Installation
 
 ```bash
-wethr --metric
-```
-
-Get current weather in imperial units:
-
-```bash
-wethr --imperial
+cargo install wethr
 ```
 
 ## Contributions

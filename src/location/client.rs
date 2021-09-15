@@ -8,7 +8,7 @@ use crate::{
     location::model::{Coordinates, Location},
 };
 
-pub const URL: &str = "http://ip-api.com/json";
+pub const URL: &str = "https://ipapi.co/json";
 
 #[derive(Error, Debug)]
 pub enum LocationClientError {
@@ -24,8 +24,8 @@ pub struct LocationClient {
 struct LocationResponse {
     pub country: String,
     pub city: String,
-    pub lat: f32,
-    pub lon: f32,
+    pub latitude: f32,
+    pub longitude: f32,
 }
 
 impl From<LocationResponse> for Location {
@@ -34,8 +34,8 @@ impl From<LocationResponse> for Location {
             country: response.country,
             city: response.city,
             coordinates: Coordinates {
-                latitude: response.lat,
-                longitude: response.lon,
+                latitude: response.latitude,
+                longitude: response.longitude,
             },
         }
     }
@@ -85,8 +85,8 @@ mod tests {
         let json = "{
                 \"country\": \"Brazil\",
                 \"city\": \"Monteiro\",
-                \"lat\": -7.9194,
-                \"lon\": -37.175
+                \"latitude\": -7.9194,
+                \"longitude\": -37.175
             }";
         let response = serde_json::from_str::<LocationResponse>(json);
         assert!(response.is_ok());

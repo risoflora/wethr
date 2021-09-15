@@ -100,3 +100,91 @@ impl Args {
         Self::parse(&args[1..])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Args;
+    use crate::units::Units;
+
+    #[test]
+    fn args_parse_unit() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.units, None);
+
+        let opt = Args::parse(&["--metric".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Celsius));
+        let opt = Args::parse(&["-m".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Celsius));
+
+        let opt = Args::parse(&["--imperial".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Fahrenheit));
+        let opt = Args::parse(&["-i".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Fahrenheit));
+
+        let opt = Args::parse(&["--unit=C".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Celsius));
+        let opt = Args::parse(&["-uC".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Celsius));
+        let opt = Args::parse(&["-uc".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Celsius));
+
+        let opt = Args::parse(&["--unit=F".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Fahrenheit));
+        let opt = Args::parse(&["-uF".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Fahrenheit));
+        let opt = Args::parse(&["-uf".to_string()]).unwrap();
+        assert_eq!(opt.units, Some(Units::Fahrenheit));
+    }
+
+    #[test]
+    fn args_parse_timeouts() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.connect_timeout, None);
+
+        let opt = Args::parse(&["--connect-timeout=123".to_string()]).unwrap();
+        assert_eq!(opt.connect_timeout, Some(123));
+        let opt = Args::parse(&["-c123".to_string()]).unwrap();
+        assert_eq!(opt.connect_timeout, Some(123));
+
+        assert_eq!(opt.timeout, None);
+        let opt = Args::parse(&["--timeout=123".to_string()]).unwrap();
+        assert_eq!(opt.timeout, Some(123));
+        let opt = Args::parse(&["-t123".to_string()]).unwrap();
+        assert_eq!(opt.timeout, Some(123));
+    }
+
+    #[test]
+    fn args_parse_version() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.version, None);
+
+        let opt = Args::parse(&["--version".to_string()]).unwrap();
+        assert_eq!(opt.version, Some(env!("CARGO_PKG_VERSION").to_string()));
+        let opt = Args::parse(&["-v".to_string()]).unwrap();
+        assert_eq!(opt.version, Some(env!("CARGO_PKG_VERSION").to_string()));
+    }
+
+    #[test]
+    fn args_parse_help() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.help, None);
+
+        let help = "Usage: wethr [options]
+
+Options:
+    -m, --metric        Weather in metric units (compatibility)
+    -i, --imperial      Weather in imperial units (compatibility)
+    -u, --unit [C]elsius or [F]ahrenheit
+                        Unit of measurement
+    -c, --connect-timeout 5
+                        Connect timeout (in seconds)
+    -t, --timeout 30    Timeout (in seconds)
+    -v, --version       Print program version
+    -h, --help          Print this help menu
+";
+        let opt = Args::parse(&["--help".to_string()]).unwrap();
+        assert_eq!(opt.help, Some(help.to_string()));
+        let opt = Args::parse(&["-h".to_string()]).unwrap();
+        assert_eq!(opt.help, Some(help.to_string()));
+    }
+}

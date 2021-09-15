@@ -66,7 +66,7 @@ Pull Requests and Issues are welcome!
 ## Whish list
 
 - [x] Binaries
-- [ ] Tests
+- [x] Tests
 - [ ] Silent mode
 - [ ] Full info
 - [ ] Forecast

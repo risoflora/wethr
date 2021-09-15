@@ -37,7 +37,7 @@ impl LocationClient {
     }
 
     pub async fn get(self) -> Result<Location, LocationClientError> {
-        let res: LocationResponse = self.inner.build()?.execute(URL).await?;
+        let res: LocationResponse = self.inner.build()?.get(URL).await?;
         Ok(res.into())
     }
 
@@ -48,5 +48,15 @@ impl LocationClient {
     {
         self.inner = func(self.inner);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::LocationClient;
+
+    #[tokio::test]
+    async fn client_get() {
+        assert!(LocationClient::new().get().await.is_ok());
     }
 }

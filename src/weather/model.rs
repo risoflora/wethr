@@ -34,3 +34,27 @@ impl From<WeatherResponse> for Weather {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Weather, WeatherResponse};
+
+    #[test]
+    fn weather_from_response() {
+        let json = "{
+            \"weather\": [
+              {
+                \"description\": \"scattered clouds\"
+              }
+            ],
+            \"main\": {
+              \"temp\": 25.8
+            }
+        }";
+        let response = serde_json::from_str::<WeatherResponse>(json);
+        assert!(response.is_ok());
+        let weather: Weather = response.unwrap().into();
+        assert_eq!(weather.temperature, 25.8);
+        assert_eq!(weather.icon, "☁️");
+    }
+}

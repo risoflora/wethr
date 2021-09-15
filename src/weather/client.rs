@@ -46,7 +46,7 @@ impl WeatherClient {
         let res: WeatherResponse = self
             .inner
             .build()?
-            .execute(&format!(
+            .get(&format!(
                 "{}?lat={lat}&lon={lon}&appid={appid}&units={units}",
                 URL,
                 lat = coordinates.latitude,
@@ -69,5 +69,32 @@ impl WeatherClient {
     {
         self.inner = func(self.inner);
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::WeatherClient;
+    use crate::{location::model::Coordinates, units::Units};
+
+    #[tokio::test]
+    async fn client_get_with_units() {
+        let coordinates = Coordinates {
+            latitude: -7.9194,
+            longitude: -37.175,
+        };
+        assert!(WeatherClient::new()
+            .get_with_units(&coordinates, Units::Fahrenheit)
+            .await
+            .is_ok());
+    }
+
+    #[tokio::test]
+    async fn client_get() {
+        let coordinates = Coordinates {
+            latitude: -7.9194,
+            longitude: -37.175,
+        };
+        assert!(WeatherClient::new().get(&coordinates).await.is_ok());
     }
 }

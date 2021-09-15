@@ -64,3 +64,19 @@ impl Spinner {
         format!("{{spinner:.{color}}} {{msg}}", color = color)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Spinner;
+
+    #[tokio::test]
+    async fn spinner_all() {
+        let mut ran = false;
+        Spinner::new()
+            .run(async {
+                ran = true;
+            })
+            .await;
+        assert!(ran);
+    }
+}

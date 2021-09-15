@@ -30,3 +30,20 @@ impl Units {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Units;
+
+    #[test]
+    fn units_to_string() {
+        assert_eq!(Units::Celsius.to_string(), "metric");
+        assert_eq!(Units::Fahrenheit.to_string(), "imperial");
+    }
+
+    #[test]
+    fn units_symbol() {
+        assert_eq!(Units::Celsius.symbol(), "C");
+        assert_eq!(Units::Fahrenheit.symbol(), "F");
+    }
+}

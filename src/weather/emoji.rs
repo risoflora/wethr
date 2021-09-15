@@ -33,3 +33,31 @@ pub fn get_emoji(description: &str) -> Option<&str> {
     }
     None
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn get_emoji() {
+        assert_eq!(super::get_emoji("clear sky"), Some("☀️"));
+        assert_eq!(super::get_emoji("few clouds"), Some("⛅"));
+        assert_eq!(super::get_emoji("scattered clouds"), Some("☁️"));
+        assert_eq!(super::get_emoji("broken clouds"), Some("☁️☁️"));
+        assert_eq!(super::get_emoji("overcast clouds"), Some("☁️☁️"));
+        assert_eq!(super::get_emoji("thunderstorm"), Some("⛈"));
+        assert_eq!(super::get_emoji("snow"), Some("🌨"));
+        assert_eq!(super::get_emoji("sleet"), Some("🌨"));
+        assert_eq!(super::get_emoji("drizzle"), Some("🌧"));
+        assert_eq!(super::get_emoji("rain"), Some("🌧"));
+        assert_eq!(super::get_emoji("mist"), Some("🌫"));
+        assert_eq!(super::get_emoji("smoke"), Some("🌫"));
+        assert_eq!(super::get_emoji("haze"), Some("🌫"));
+        assert_eq!(super::get_emoji("fog"), Some("🌫"));
+        assert_eq!(super::get_emoji("sand"), Some("🌫"));
+        assert_eq!(super::get_emoji("dust"), Some("🌫"));
+        assert_eq!(super::get_emoji("ash"), Some("🌫"));
+        assert_eq!(super::get_emoji("squalls"), Some("🌫"));
+        assert_eq!(super::get_emoji("tornado"), Some("🌪"));
+        assert_eq!(super::get_emoji("hurricane"), Some("🌪"));
+        assert_eq!(super::get_emoji("tropical storm"), Some("🌪"));
+    }
+}

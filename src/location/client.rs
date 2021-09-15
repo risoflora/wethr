@@ -1,13 +1,12 @@
 use std::time::Duration;
 
+use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{
     client::{ClientBuilder, ClientError},
-    location::model::Location,
+    location::model::{Coordinates, Location},
 };
-
-use super::model::LocationResponse;
 
 pub const URL: &str = "http://ip-api.com/json";
 
@@ -19,6 +18,27 @@ pub enum LocationClientError {
 
 pub struct LocationClient {
     inner: ClientBuilder,
+}
+
+#[derive(Debug, Deserialize)]
+struct LocationResponse {
+    pub country: String,
+    pub city: String,
+    pub lat: f32,
+    pub lon: f32,
+}
+
+impl From<LocationResponse> for Location {
+    fn from(response: LocationResponse) -> Self {
+        Self {
+            country: response.country,
+            city: response.city,
+            coordinates: Coordinates {
+                latitude: response.lat,
+                longitude: response.lon,
+            },
+        }
+    }
 }
 
 impl LocationClient {
@@ -53,10 +73,27 @@ impl LocationClient {
 
 #[cfg(test)]
 mod tests {
-    use super::LocationClient;
+    use super::{Location, LocationClient, LocationResponse};
 
     #[tokio::test]
     async fn client_get() {
         assert!(LocationClient::new().get().await.is_ok());
+    }
+
+    #[test]
+    fn location_from_response() {
+        let json = "{
+                \"country\": \"Brazil\",
+                \"city\": \"Monteiro\",
+                \"lat\": -7.9194,
+                \"lon\": -37.175
+            }";
+        let response = serde_json::from_str::<LocationResponse>(json);
+        assert!(response.is_ok());
+        let location: Location = response.unwrap().into();
+        assert_eq!(location.country, "Brazil");
+        assert_eq!(location.city, "Monteiro");
+        assert_eq!(location.coordinates.latitude, -7.9194);
+        assert_eq!(location.coordinates.longitude, -37.175);
     }
 }

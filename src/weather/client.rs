@@ -1,12 +1,14 @@
 use std::time::Duration;
 
+use serde::Deserialize;
 use thiserror::Error;
 
 use crate::{
     client::{ClientBuilder, ClientError},
+    emoji::get_emoji,
     location::model::Coordinates,
     units::Units,
-    weather::model::{Weather, WeatherResponse},
+    weather::model::Weather,
 };
 
 pub const URL: &str = "http://api.openweathermap.org/data/2.5/weather";
@@ -21,6 +23,33 @@ pub enum WeatherClientError {
 
 pub struct WeatherClient {
     inner: ClientBuilder,
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherMain {
+    temp: f32,
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherMap {
+    description: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherResponse {
+    main: WeatherMain,
+    weather: Vec<WeatherMap>,
+}
+
+impl From<WeatherResponse> for Weather {
+    fn from(response: WeatherResponse) -> Self {
+        Self {
+            temperature: response.main.temp,
+            icon: get_emoji(&response.weather[0].description)
+                .unwrap_or_default()
+                .to_string(),
+        }
+    }
 }
 
 impl WeatherClient {
@@ -74,7 +103,7 @@ impl WeatherClient {
 
 #[cfg(test)]
 mod tests {
-    use super::WeatherClient;
+    use super::{Weather, WeatherClient, WeatherResponse};
     use crate::{location::model::Coordinates, units::Units};
 
     #[tokio::test]
@@ -96,5 +125,24 @@ mod tests {
             longitude: -37.175,
         };
         assert!(WeatherClient::new().get(&coordinates).await.is_ok());
+    }
+
+    #[test]
+    fn weather_from_response() {
+        let json = "{
+            \"weather\": [
+              {
+                \"description\": \"scattered clouds\"
+              }
+            ],
+            \"main\": {
+              \"temp\": 25.8
+            }
+        }";
+        let response = serde_json::from_str::<WeatherResponse>(json);
+        assert!(response.is_ok());
+        let weather: Weather = response.unwrap().into();
+        assert_eq!(weather.temperature, 25.8);
+        assert_eq!(weather.icon, "☁️");
     }
 }

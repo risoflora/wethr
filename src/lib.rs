@@ -1,6 +1,7 @@
 pub mod args;
 pub mod client;
 pub mod consts;
+pub mod emoji;
 pub mod location;
 pub mod options;
 pub mod spinner;

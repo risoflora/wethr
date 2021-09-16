@@ -3,6 +3,7 @@ use std::{process, time::Duration};
 use wethr::{
     args,
     client::{CLIENT_CONNECT_TIMEOUT, CLIENT_TIMEOUT},
+    info::Info,
     location::client::LocationClient,
     spinner::{Spinner, SpinnerColor},
     weather::client::WeatherClient,
@@ -39,13 +40,7 @@ async fn main() -> anyhow::Result<()> {
                 .get_with_units(&location.coordinates, units),
         )
         .await?;
-    spinner.print_message(format!(
-        "{city}, {country}: {temperature}{units} {emoji}",
-        city = location.city,
-        country = location.country,
-        temperature = weather.temperature,
-        units = units.symbol(),
-        emoji = weather.icon
-    ));
+    let info = Info::new(&location, &weather, units).set_verbose(opts.full_info.is_some());
+    spinner.print_message(&info.to_string());
     Ok(())
 }

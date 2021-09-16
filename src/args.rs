@@ -29,6 +29,7 @@ impl Args {
             )
             .optopt("c", "connect-timeout", "Connect timeout (in seconds)", "5")
             .optopt("t", "timeout", "Timeout (in seconds)", "30")
+            .optflag("f", "full-info", "Full weather information")
             .optflag("s", "silent", "Silent mode")
             .optflag("v", "version", "Print program version")
             .optflag("h", "help", "Print this help menu");
@@ -61,6 +62,15 @@ impl Args {
     #[inline]
     fn parse_timeout(matches: &Matches) -> Option<u64> {
         matches.opt_get("t").unwrap_or_default()
+    }
+
+    #[inline]
+    fn parse_full_info(matches: &Matches) -> Option<bool> {
+        if matches.opt_present("f") {
+            Some(true)
+        } else {
+            None
+        }
     }
 
     #[inline]
@@ -98,6 +108,7 @@ impl Args {
                 units: Self::parse_units(&matches),
                 connect_timeout: Self::parse_connect_timeout(&matches),
                 timeout: Self::parse_timeout(&matches),
+                full_info: Self::parse_full_info(&matches),
                 silent: Self::parse_silent(&matches),
                 version: Self::parse_version(&matches),
                 help: Self::parse_help(&opts, &matches),
@@ -165,6 +176,17 @@ mod tests {
     }
 
     #[test]
+    fn args_parse_full_info() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.full_info, None);
+
+        let opt = Args::parse(&["--full-info".to_string()]).unwrap();
+        assert_eq!(opt.full_info, Some(true));
+        let opt = Args::parse(&["-f".to_string()]).unwrap();
+        assert_eq!(opt.full_info, Some(true));
+    }
+
+    #[test]
     fn args_parse_silent() {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.silent, None);
@@ -201,6 +223,7 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -f, --full-info     Full weather information
     -s, --silent        Silent mode
     -v, --version       Print program version
     -h, --help          Print this help menu

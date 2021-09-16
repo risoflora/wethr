@@ -30,3 +30,4 @@ reqwest = { version = "0.11", default-features = false, features = [
     "json",
 ] }
 indicatif = "0.16"
+humantime = "2.1"

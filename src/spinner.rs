@@ -8,7 +8,7 @@ use tokio::{select, time::interval};
 
 const TICK_STRINGS: &[&str] = &["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum SpinnerColor {
     Black,
     Red,
@@ -119,8 +119,8 @@ impl Spinner {
 mod tests {
     use super::{Spinner, SpinnerColor::*};
 
-    #[tokio::test]
-    async fn spinner_colors() {
+    #[test]
+    fn spinner_colors() {
         assert_eq!(Black.to_string(), "black");
         assert_eq!(Red.to_string(), "red");
         assert_eq!(Green.to_string(), "green");

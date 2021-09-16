@@ -21,6 +21,7 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -f, --full-info     Full weather information
     -s, --silent        Silent mode
     -v, --version       Print program version
     -h, --help          Print this help menu
@@ -52,7 +53,7 @@ Pull Requests and Issues are welcome!
 - [x] Binaries
 - [x] Tests
 - [x] Silent mode
-- [ ] Full info
+- [x] Full info
 - [ ] Forecast
 - [ ] Query by country/city
 - [ ] Proxy support

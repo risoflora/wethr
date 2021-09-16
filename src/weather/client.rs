@@ -5,10 +5,11 @@ use thiserror::Error;
 
 use crate::{
     client::{ClientBuilder, ClientError},
+    datetime::DateTime,
     emoji::get_emoji,
     location::model::Coordinates,
     units::Units,
-    weather::model::Weather,
+    weather::model::{Weather, Wind},
 };
 
 pub const URL: &str = "http://api.openweathermap.org/data/2.5/weather";
@@ -21,13 +22,9 @@ pub enum WeatherClientError {
     Client(#[from] ClientError),
 }
 
+#[derive(Debug)]
 pub struct WeatherClient {
     inner: ClientBuilder,
-}
-
-#[derive(Debug, Deserialize)]
-struct WeatherMain {
-    temp: f32,
 }
 
 #[derive(Debug, Deserialize)]
@@ -36,18 +33,76 @@ struct WeatherMap {
 }
 
 #[derive(Debug, Deserialize)]
+struct WeatherMain {
+    temp: f32,
+    feels_like: f32,
+    temp_min: f32,
+    temp_max: f32,
+    pressure: i32,
+    humidity: i32,
+    sea_level: i32,
+    grnd_level: i32,
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherWindMap {
+    speed: f32,
+    deg: i32,
+    gust: f32,
+}
+
+impl From<WeatherWindMap> for Wind {
+    fn from(response: WeatherWindMap) -> Self {
+        Wind {
+            speed: response.speed,
+            degrees: response.deg,
+            gust: response.gust,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherClouds {
+    all: i32,
+}
+
+#[derive(Debug, Deserialize)]
+struct WeatherSys {
+    sunrise: u64,
+    sunset: u64,
+}
+
+#[derive(Debug, Deserialize)]
 struct WeatherResponse {
-    main: WeatherMain,
     weather: Vec<WeatherMap>,
+    main: WeatherMain,
+    wind: WeatherWindMap,
+    clouds: WeatherClouds,
+    dt: u64,
+    sys: WeatherSys,
 }
 
 impl From<WeatherResponse> for Weather {
     fn from(response: WeatherResponse) -> Self {
+        let weather = &response.weather[0];
         Self {
             temperature: response.main.temp,
-            icon: get_emoji(&response.weather[0].description)
+            icon: get_emoji(&weather.description)
                 .unwrap_or_default()
                 .to_string(),
+            description: weather.description.clone(),
+            feels_like: response.main.feels_like,
+            min_temperature: response.main.temp_min,
+            max_temperature: response.main.temp_max,
+            pressure: response.main.pressure,
+            humidity: response.main.humidity,
+            sea_level: response.main.sea_level,
+            ground_level: response.main.grnd_level,
+            wind: response.wind.into(),
+            clouds: response.clouds.all,
+            date_time: DateTime::from_unix(response.dt),
+            sunrise: DateTime::from_unix(response.sys.sunrise),
+            sunset: DateTime::from_unix(response.sys.sunset),
         }
     }
 }
@@ -136,13 +191,39 @@ mod tests {
               }
             ],
             \"main\": {
-              \"temp\": 25.8
-            }
+              \"temp\": 25.8,
+              \"feels_like\": 25.87,
+              \"temp_min\": 25.8,
+              \"temp_max\": 25.8,
+              \"pressure\": 1017,
+              \"humidity\": 55,
+              \"sea_level\": 1017,
+              \"grnd_level\": 949
+            },
+            \"wind\": { \"speed\": 4.72, \"deg\": 115, \"gust\": 6.14 },
+            \"clouds\": { \"all\": 46 },
+            \"dt\": 1631620646,
+            \"sys\": { \"country\": \"BR\", \"sunrise\": 1631607769, \"sunset\": 1631651152 }
         }";
         let response = serde_json::from_str::<WeatherResponse>(json);
         assert!(response.is_ok());
         let weather: Weather = response.unwrap().into();
         assert_eq!(weather.temperature, 25.8);
         assert_eq!(weather.icon, "☁️");
+        assert_eq!(weather.description, "scattered clouds");
+        assert_eq!(weather.feels_like, 25.87);
+        assert_eq!(weather.min_temperature, 25.8);
+        assert_eq!(weather.max_temperature, 25.8);
+        assert_eq!(weather.pressure, 1017);
+        assert_eq!(weather.humidity, 55);
+        assert_eq!(weather.sea_level, 1017);
+        assert_eq!(weather.ground_level, 949);
+        assert_eq!(weather.wind.speed, 4.72);
+        assert_eq!(weather.wind.degrees, 115);
+        assert_eq!(weather.wind.gust, 6.14);
+        assert_eq!(weather.clouds, 46);
+        assert_eq!(weather.date_time.to_string(), "2021-09-14T11:57:26Z");
+        assert_eq!(weather.sunrise.to_string(), "2021-09-14T08:22:49Z");
+        assert_eq!(weather.sunset.to_string(), "2021-09-14T20:25:52Z");
     }
 }

@@ -8,7 +8,7 @@ use crate::{
     location::model::{Coordinates, Location},
 };
 
-pub const URL: &str = "https://ipapi.co/json";
+pub const URL: &str = "https://ipapi.co/json/";
 
 #[derive(Error, Debug)]
 pub enum LocationClientError {
@@ -16,6 +16,7 @@ pub enum LocationClientError {
     Client(#[from] ClientError),
 }
 
+#[derive(Debug)]
 pub struct LocationClient {
     inner: ClientBuilder,
 }

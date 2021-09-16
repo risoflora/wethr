@@ -56,13 +56,17 @@ Humidity: {humidity}%
 Pressure: {pressure} hPa
 Sea level: {sea_level} hPa
 Ground level: {ground_level} hPa
+Clouds: {clouds}%
+Sunrise: {sunrise}
+Sunset: {sunset}
 Wind:
   Speed: {speed}
   Degrees: {degrees}
   Gust: {gust}
 Coordinates:
   Longitude: {longitude}
-  Latitude: {latitude}",
+  Latitude: {latitude}
+Date/time: {date_time}",
                 description = description,
                 feels_like = self.weather.feels_like,
                 units = units,
@@ -72,11 +76,15 @@ Coordinates:
                 pressure = self.weather.pressure,
                 sea_level = self.weather.sea_level,
                 ground_level = self.weather.ground_level,
+                clouds = self.weather.clouds,
+                sunrise = self.weather.sunrise,
+                sunset = self.weather.sunset,
                 speed = self.weather.wind.format_speed(self.units),
                 degrees = self.weather.wind.degrees,
                 gust = self.weather.wind.format_gust(self.units),
                 longitude = self.location.coordinates.longitude,
-                latitude = self.location.coordinates.latitude
+                latitude = self.location.coordinates.latitude,
+                date_time = self.weather.date_time,
             ))
         } else {
             info
@@ -143,13 +151,17 @@ Humidity: 55%
 Pressure: 1017 hPa
 Sea level: 1017 hPa
 Ground level: 949 hPa
+Clouds: 46%
+Sunrise: 2021-09-14T08:22:49Z
+Sunset: 2021-09-14T20:25:52Z
 Wind:
   Speed: 4.72 meter/sec
   Degrees: 115
   Gust: 6.14 meter/sec
 Coordinates:
   Longitude: -37.175
-  Latitude: -7.9194";
+  Latitude: -7.9194
+Date/time: 2021-09-14T11:57:26Z";
         assert_eq!(info.to_string(), text);
         let units = Fahrenheit;
         let info = Info::new(&location, &weather, units).set_verbose(true);
@@ -162,13 +174,17 @@ Humidity: 55%
 Pressure: 1017 hPa
 Sea level: 1017 hPa
 Ground level: 949 hPa
+Clouds: 46%
+Sunrise: 2021-09-14T08:22:49Z
+Sunset: 2021-09-14T20:25:52Z
 Wind:
   Speed: 4.72 miles/hour
   Degrees: 115
   Gust: 6.14 miles/hour
 Coordinates:
   Longitude: -37.175
-  Latitude: -7.9194";
+  Latitude: -7.9194
+Date/time: 2021-09-14T11:57:26Z";
         assert_eq!(info.to_string(), text);
     }
 }

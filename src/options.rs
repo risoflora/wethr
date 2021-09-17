@@ -1,6 +1,6 @@
 use crate::units::Units;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Options {
     pub units: Option<Units>,
     pub connect_timeout: Option<u64>,

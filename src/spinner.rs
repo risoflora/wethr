@@ -37,7 +37,7 @@ impl Display for SpinnerColor {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Spinner {
     progress_bar: ProgressBar,
     silent: bool,

@@ -3,7 +3,7 @@ use std::{
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct DateTime(SystemTime);
 
 impl DateTime {

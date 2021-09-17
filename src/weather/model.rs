@@ -1,6 +1,6 @@
 use crate::{datetime::DateTime, units::Units};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Wind {
     pub speed: f32,
     pub degrees: i32,
@@ -25,7 +25,7 @@ impl Wind {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Weather {
     pub temperature: f32,
     pub icon: String,

@@ -5,6 +5,7 @@ use thiserror::Error;
 
 use crate::{
     client::{ClientBuilder, ClientError},
+    consts::TOKEN,
     datetime::DateTime,
     emoji::get_emoji,
     location::model::Coordinates,
@@ -12,9 +13,7 @@ use crate::{
     weather::model::{Weather, Wind},
 };
 
-pub const URL: &str = "http://api.openweathermap.org/data/2.5/weather";
-
-pub const TOKEN: &str = "315bfb21a64943c67a92e2da0022fdbe";
+pub const URL_WEATHER: &str = "http://api.openweathermap.org/data/2.5/weather";
 
 #[derive(Error, Debug)]
 pub enum WeatherClientError {
@@ -27,12 +26,12 @@ pub struct WeatherClient {
     inner: ClientBuilder,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherMap {
     description: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherMain {
     temp: f32,
     feels_like: f32,
@@ -44,7 +43,7 @@ struct WeatherMain {
     grnd_level: i32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherWindMap {
     speed: f32,
     deg: i32,
@@ -61,18 +60,18 @@ impl From<WeatherWindMap> for Wind {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherClouds {
     all: i32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherSys {
     sunrise: u64,
     sunset: u64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct WeatherResponse {
     weather: Vec<WeatherMap>,
     main: WeatherMain,
@@ -131,8 +130,8 @@ impl WeatherClient {
             .inner
             .build()?
             .get(&format!(
-                "{}?lat={lat}&lon={lon}&appid={appid}&units={units}",
-                URL,
+                "{}?lat={lat}&lon={lon}&units={units}&appid={appid}",
+                URL_WEATHER,
                 lat = coordinates.latitude,
                 lon = coordinates.longitude,
                 appid = TOKEN.to_string(),

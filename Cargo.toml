@@ -1,6 +1,6 @@
 [package]
 name = "wethr"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Silvio Clecio (silvioprog) <silvioprog@gmail.com>"]
 license = "MIT"
 description = "Command line weather tool."

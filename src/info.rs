@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Result};
 
 use crate::{location::model::Location, units::Units, weather::model::Weather};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Info<'a> {
     location: &'a Location,
     weather: &'a Weather,

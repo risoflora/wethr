@@ -8,7 +8,7 @@ use crate::{
     location::model::{Coordinates, Location},
 };
 
-pub const URL: &str = "https://ipapi.co/json/";
+pub const URL_LOCATION: &str = "https://ipapi.co/json/";
 
 #[derive(Error, Debug)]
 pub enum LocationClientError {
@@ -21,7 +21,7 @@ pub struct LocationClient {
     inner: ClientBuilder,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct LocationResponse {
     pub country: String,
     pub city: String,
@@ -58,7 +58,7 @@ impl LocationClient {
     }
 
     pub async fn get(self) -> Result<Location, LocationClientError> {
-        let res: LocationResponse = self.inner.build()?.get(URL).await?;
+        let res: LocationResponse = self.inner.build()?.get(URL_LOCATION).await?;
         Ok(res.into())
     }
 

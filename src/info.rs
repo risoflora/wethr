@@ -28,12 +28,15 @@ impl<'a> Info<'a> {
 
 impl Display for Info<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let description = format!(
-            "{}{}",
-            &self.weather.description[0..1].to_uppercase(),
-            &self.weather.description[1..]
-        );
-
+        let description = if self.weather.description.is_empty() {
+            String::default()
+        } else {
+            format!(
+                "{}{}",
+                &self.weather.description[0..1].to_uppercase(),
+                &self.weather.description[1..]
+            )
+        };
         let units = self.units.symbol();
         let info = write!(
             f,
@@ -74,8 +77,8 @@ Date/time: {date_time}",
                 max = self.weather.max_temperature,
                 humidity = self.weather.humidity,
                 pressure = self.weather.pressure,
-                sea_level = self.weather.sea_level,
-                ground_level = self.weather.ground_level,
+                sea_level = self.weather.sea_level.unwrap_or_default(),
+                ground_level = self.weather.ground_level.unwrap_or_default(),
                 clouds = self.weather.clouds,
                 speed = self.weather.wind.format_speed(self.units),
                 degrees = self.weather.wind.degrees,
@@ -121,8 +124,8 @@ mod tests {
             max_temperature: 25.8,
             pressure: 1017,
             humidity: 55,
-            sea_level: 1017,
-            ground_level: 949,
+            sea_level: Some(1017),
+            ground_level: Some(949),
             wind: Wind {
                 speed: 4.72,
                 degrees: 115,

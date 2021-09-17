@@ -31,6 +31,14 @@ struct WeatherMap {
     description: String,
 }
 
+impl Default for WeatherMap {
+    fn default() -> Self {
+        Self {
+            description: Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 struct WeatherMain {
     temp: f32,
@@ -39,8 +47,23 @@ struct WeatherMain {
     temp_max: f32,
     pressure: i32,
     humidity: i32,
-    sea_level: i32,
-    grnd_level: i32,
+    sea_level: Option<i32>,
+    grnd_level: Option<i32>,
+}
+
+impl Default for WeatherMain {
+    fn default() -> Self {
+        Self {
+            temp: Default::default(),
+            feels_like: Default::default(),
+            temp_min: Default::default(),
+            temp_max: Default::default(),
+            pressure: Default::default(),
+            humidity: Default::default(),
+            sea_level: Default::default(),
+            grnd_level: Default::default(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -48,6 +71,16 @@ struct WeatherWindMap {
     speed: f32,
     deg: i32,
     gust: f32,
+}
+
+impl Default for WeatherWindMap {
+    fn default() -> Self {
+        Self {
+            speed: Default::default(),
+            deg: Default::default(),
+            gust: Default::default(),
+        }
+    }
 }
 
 impl From<WeatherWindMap> for Wind {
@@ -65,43 +98,62 @@ struct WeatherClouds {
     all: i32,
 }
 
+impl Default for WeatherClouds {
+    fn default() -> Self {
+        Self {
+            all: Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 struct WeatherSys {
     sunrise: u64,
     sunset: u64,
 }
 
+impl Default for WeatherSys {
+    fn default() -> Self {
+        Self {
+            sunrise: Default::default(),
+            sunset: Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 struct WeatherResponse {
-    weather: Vec<WeatherMap>,
-    main: WeatherMain,
-    wind: WeatherWindMap,
-    clouds: WeatherClouds,
-    dt: u64,
-    sys: WeatherSys,
+    weather: Option<Vec<WeatherMap>>,
+    main: Option<WeatherMain>,
+    wind: Option<WeatherWindMap>,
+    clouds: Option<WeatherClouds>,
+    dt: Option<u64>,
+    sys: Option<WeatherSys>,
 }
 
 impl From<WeatherResponse> for Weather {
     fn from(response: WeatherResponse) -> Self {
-        let weather = &response.weather[0];
+        let weather = &response.weather.unwrap_or([WeatherMap::default()].to_vec())[0];
+        let main = response.main.unwrap_or_default();
+        let sys = response.sys.unwrap_or_default();
         Self {
-            temperature: response.main.temp,
+            temperature: main.temp,
             icon: get_emoji(&weather.description)
                 .unwrap_or_default()
                 .to_string(),
             description: weather.description.clone(),
-            feels_like: response.main.feels_like,
-            min_temperature: response.main.temp_min,
-            max_temperature: response.main.temp_max,
-            pressure: response.main.pressure,
-            humidity: response.main.humidity,
-            sea_level: response.main.sea_level,
-            ground_level: response.main.grnd_level,
-            wind: response.wind.into(),
-            clouds: response.clouds.all,
-            date_time: DateTime::from_unix(response.dt),
-            sunrise: DateTime::from_unix(response.sys.sunrise),
-            sunset: DateTime::from_unix(response.sys.sunset),
+            feels_like: main.feels_like,
+            min_temperature: main.temp_min,
+            max_temperature: main.temp_max,
+            pressure: main.pressure,
+            humidity: main.humidity,
+            sea_level: main.sea_level,
+            ground_level: main.grnd_level,
+            wind: response.wind.unwrap_or_default().into(),
+            clouds: response.clouds.unwrap_or_default().all,
+            date_time: DateTime::from_unix(response.dt.unwrap_or_default()),
+            sunrise: DateTime::from_unix(sys.sunrise),
+            sunset: DateTime::from_unix(sys.sunset),
         }
     }
 }
@@ -215,8 +267,8 @@ mod tests {
         assert_eq!(weather.max_temperature, 25.8);
         assert_eq!(weather.pressure, 1017);
         assert_eq!(weather.humidity, 55);
-        assert_eq!(weather.sea_level, 1017);
-        assert_eq!(weather.ground_level, 949);
+        assert_eq!(weather.sea_level, Some(1017));
+        assert_eq!(weather.ground_level, Some(949));
         assert_eq!(weather.wind.speed, 4.72);
         assert_eq!(weather.wind.degrees, 115);
         assert_eq!(weather.wind.gust, 6.14);

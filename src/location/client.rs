@@ -23,20 +23,31 @@ pub struct LocationClient {
 
 #[derive(Clone, Debug, Deserialize)]
 struct LocationResponse {
-    pub country: String,
-    pub city: String,
-    pub latitude: f32,
-    pub longitude: f32,
+    pub country: Option<String>,
+    pub city: Option<String>,
+    pub latitude: Option<f32>,
+    pub longitude: Option<f32>,
+}
+
+impl Default for LocationResponse {
+    fn default() -> Self {
+        Self {
+            country: Default::default(),
+            city: Default::default(),
+            latitude: Default::default(),
+            longitude: Default::default(),
+        }
+    }
 }
 
 impl From<LocationResponse> for Location {
     fn from(response: LocationResponse) -> Self {
         Self {
-            country: response.country,
-            city: response.city,
+            country: response.country.unwrap_or("N/D".to_uppercase()),
+            city: response.city.unwrap_or("N/D".to_uppercase()),
             coordinates: Coordinates {
-                latitude: response.latitude,
-                longitude: response.longitude,
+                latitude: response.latitude.unwrap_or_default(),
+                longitude: response.longitude.unwrap_or_default(),
             },
         }
     }

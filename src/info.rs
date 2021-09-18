@@ -28,15 +28,6 @@ impl<'a> Info<'a> {
 
 impl Display for Info<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let description = if self.weather.description.is_empty() {
-            String::default()
-        } else {
-            format!(
-                "{}{}",
-                &self.weather.description[0..1].to_uppercase(),
-                &self.weather.description[1..]
-            )
-        };
         let units = self.units.symbol();
         let info = write!(
             f,
@@ -70,7 +61,7 @@ Coordinates:
 Sunrise: {sunrise}
 Sunset: {sunset}
 Date/time: {date_time}",
-                description = description,
+                description = self.weather.description,
                 feels_like = self.weather.feels_like,
                 units = units,
                 min = self.weather.min_temperature,
@@ -118,7 +109,7 @@ mod tests {
         let weather = Weather {
             temperature: 25.8,
             icon: "☀️".to_string(),
-            description: "scattered clouds".to_string(),
+            description: "Scattered clouds".to_string(),
             feels_like: 25.87,
             min_temperature: 25.8,
             max_temperature: 25.8,

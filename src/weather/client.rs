@@ -68,9 +68,9 @@ impl Default for WeatherMain {
 
 #[derive(Clone, Debug, Deserialize)]
 struct WeatherWindMap {
-    speed: f32,
-    deg: i32,
-    gust: f32,
+    speed: Option<f32>,
+    deg: Option<i32>,
+    gust: Option<f32>,
 }
 
 impl Default for WeatherWindMap {
@@ -86,9 +86,9 @@ impl Default for WeatherWindMap {
 impl From<WeatherWindMap> for Wind {
     fn from(response: WeatherWindMap) -> Self {
         Wind {
-            speed: response.speed,
-            degrees: response.deg,
-            gust: response.gust,
+            speed: response.speed.unwrap_or_default(),
+            degrees: response.deg.unwrap_or_default(),
+            gust: response.gust.unwrap_or_default(),
         }
     }
 }
@@ -134,14 +134,13 @@ struct WeatherResponse {
 impl From<WeatherResponse> for Weather {
     fn from(response: WeatherResponse) -> Self {
         let weather = &response.weather.unwrap_or([WeatherMap::default()].to_vec())[0];
+        let description = &weather.description;
         let main = response.main.unwrap_or_default();
         let sys = response.sys.unwrap_or_default();
         Self {
             temperature: main.temp,
-            icon: get_emoji(&weather.description)
-                .unwrap_or_default()
-                .to_string(),
-            description: weather.description.clone(),
+            icon: get_emoji(&description).unwrap_or_default().to_string(),
+            description: format!("{}{}", &description[0..1].to_uppercase(), &description[1..]),
             feels_like: main.feels_like,
             min_temperature: main.temp_min,
             max_temperature: main.temp_max,
@@ -261,7 +260,7 @@ mod tests {
         let weather: Weather = response.unwrap().into();
         assert_eq!(weather.temperature, 25.8);
         assert_eq!(weather.icon, "☁️");
-        assert_eq!(weather.description, "scattered clouds");
+        assert_eq!(weather.description, "Scattered clouds");
         assert_eq!(weather.feels_like, 25.87);
         assert_eq!(weather.min_temperature, 25.8);
         assert_eq!(weather.max_temperature, 25.8);

@@ -5,7 +5,7 @@ use thiserror::Error;
 
 use crate::{consts, options::Options, units::Units};
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error)]
 pub enum ArgsError {
     #[error(transparent)]
     GetOpts(#[from] Fail),
@@ -149,7 +149,6 @@ mod tests {
         assert_eq!(opt.units, Some(Units::Celsius));
         let opt = Args::parse(&["-uc".to_string()]).unwrap();
         assert_eq!(opt.units, Some(Units::Celsius));
-
         let opt = Args::parse(&["--unit=F".to_string()]).unwrap();
         assert_eq!(opt.units, Some(Units::Fahrenheit));
         let opt = Args::parse(&["-uF".to_string()]).unwrap();

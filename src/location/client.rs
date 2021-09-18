@@ -10,7 +10,7 @@ use crate::{
 
 pub const URL_LOCATION: &str = "https://ipapi.co/json/";
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error)]
 pub enum LocationClientError {
     #[error(transparent)]
     Client(#[from] ClientError),

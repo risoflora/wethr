@@ -15,7 +15,7 @@ use crate::{
 
 pub const URL_WEATHER: &str = "http://api.openweathermap.org/data/2.5/weather";
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error)]
 pub enum WeatherClientError {
     #[error(transparent)]
     Client(#[from] ClientError),

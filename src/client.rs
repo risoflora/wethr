@@ -10,7 +10,7 @@ pub static CLIENT_CONNECT_TIMEOUT: u64 = 5;
 
 pub static CLIENT_TIMEOUT: u64 = 30;
 
-#[derive(Error, Debug)]
+#[derive(Debug, Error)]
 pub enum ClientError {
     #[error(transparent)]
     Reqwest(#[from] ReqError),
@@ -26,6 +26,9 @@ pub struct Client {
 impl Client {
     pub async fn get<T: DeserializeOwned>(&self, url: &str) -> ClientResult<T> {
         let res = self.inner.get(url).send().await?;
+        if let Err(error) = res.error_for_status_ref() {
+            return Err(error.into());
+        }
         Ok(res.json::<T>().await?)
     }
 }

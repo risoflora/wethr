@@ -208,11 +208,16 @@ impl WeatherClient {
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
+    use tokio::time::sleep;
+
     use super::{Weather, WeatherClient, WeatherResponse};
     use crate::{location::model::Coordinates, units::Units};
 
     #[tokio::test]
     async fn client_get_with_units() {
+        sleep(Duration::from_secs(1)).await;
         let coordinates = Coordinates {
             latitude: -7.9194,
             longitude: -37.175,
@@ -225,6 +230,7 @@ mod tests {
 
     #[tokio::test]
     async fn client_get() {
+        sleep(Duration::from_secs(1)).await;
         let coordinates = Coordinates {
             latitude: -7.9194,
             longitude: -37.175,

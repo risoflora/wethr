@@ -4,7 +4,7 @@ use wethr::{
     args,
     client::{CLIENT_CONNECT_TIMEOUT, CLIENT_TIMEOUT},
     info::Info,
-    location::client::LocationClient,
+    location::client::{LocationClient, LocationQuery},
     spinner::{Spinner, SpinnerColor},
     weather::client::WeatherClient,
 };
@@ -19,15 +19,19 @@ async fn main() -> anyhow::Result<()> {
     let spinner = Spinner::new().set_silent(opts.silent.is_some());
     let connect_timeout = opts.connect_timeout.unwrap_or(CLIENT_CONNECT_TIMEOUT);
     let timeout = opts.timeout.unwrap_or(CLIENT_TIMEOUT);
+    let query = opts.query;
     let location = spinner
         .set_color(SpinnerColor::Blue)
         .set_message("Detecting your location")
-        .run(
-            LocationClient::new()
+        .run(async {
+            let location = LocationClient::new()
                 .set_connect_timeout(Duration::from_secs(connect_timeout))
-                .set_timeout(Duration::from_secs(timeout))
-                .get(),
-        )
+                .set_timeout(Duration::from_secs(timeout));
+            match query {
+                Some(query) => location.get_by_query(&LocationQuery::from(query)).await,
+                None => location.get().await,
+            }
+        })
         .await?;
     let units = opts.units.unwrap_or_default();
     let weather = spinner

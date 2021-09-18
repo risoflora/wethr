@@ -65,6 +65,15 @@ impl Args {
     }
 
     #[inline]
+    fn parse_query(matches: &Matches) -> Option<String> {
+        if matches.free.is_empty() {
+            None
+        } else {
+            Some(matches.free[0].clone())
+        }
+    }
+
+    #[inline]
     fn parse_full_info(matches: &Matches) -> Option<bool> {
         if matches.opt_present("f") {
             Some(true)
@@ -94,7 +103,10 @@ impl Args {
     #[inline]
     fn parse_help(opts: &OptsOptions, matches: &Matches) -> Option<String> {
         if matches.opt_present("h") {
-            Some(opts.usage(&format!("Usage: {} [options]", consts::PROGRAM_NAME)))
+            Some(opts.usage(&format!(
+                "Usage: {} [options] [city[,state][,country]]",
+                consts::PROGRAM_NAME
+            )))
         } else {
             None
         }
@@ -108,6 +120,7 @@ impl Args {
                 units: Self::parse_units(&matches),
                 connect_timeout: Self::parse_connect_timeout(&matches),
                 timeout: Self::parse_timeout(&matches),
+                query: Self::parse_query(&matches),
                 full_info: Self::parse_full_info(&matches),
                 silent: Self::parse_silent(&matches),
                 version: Self::parse_version(&matches),
@@ -175,6 +188,23 @@ mod tests {
     }
 
     #[test]
+    fn args_parse_query() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.query, None);
+
+        let opt = Args::parse(&["".to_string()]).unwrap();
+        assert_eq!(opt.query, Some("".to_string()));
+        let opt = Args::parse(&["monteiro".to_string()]).unwrap();
+        assert_eq!(opt.query, Some("monteiro".to_string()));
+        let opt = Args::parse(&["joão pessoa".to_string()]).unwrap();
+        assert_eq!(opt.query, Some("joão pessoa".to_string()));
+        let opt = Args::parse(&["joão pessoa,paraíba".to_string()]).unwrap();
+        assert_eq!(opt.query, Some("joão pessoa,paraíba".to_string()));
+        let opt = Args::parse(&["joão pessoa,paraíba,brasil".to_string()]).unwrap();
+        assert_eq!(opt.query, Some("joão pessoa,paraíba,brasil".to_string()));
+    }
+
+    #[test]
     fn args_parse_full_info() {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.full_info, None);
@@ -212,7 +242,7 @@ mod tests {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.help, None);
 
-        let help = "Usage: wethr [options]
+        let help = "Usage: wethr [options] [city[,state][,country]]
 
 Options:
     -m, --metric        Weather in metric units (compatibility)

@@ -86,11 +86,11 @@ impl From<String> for LocationQuery {
 impl Display for LocationQuery {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", &self.city_name)?;
-        if let Some(value) = &self.state_code {
-            write!(f, ",{}", value)?;
+        if let Some(state_code) = &self.state_code {
+            write!(f, ",{}", state_code)?;
         }
-        if let Some(value) = &self.country_code {
-            write!(f, ",{}", value)?;
+        if let Some(country_code) = &self.country_code {
+            write!(f, ",{}", country_code)?;
         }
         Ok(())
     }
@@ -122,8 +122,8 @@ impl From<LocationQueryResponse> for Location {
         Self {
             city: response.name.unwrap_or("N/D".to_string()),
             state_code: response.state,
-            country_code: None,
-            country: response.country,
+            country_code: response.country,
+            country: None,
             coordinates: Coordinates::new(
                 response.lat.unwrap_or_default(),
                 response.lon.unwrap_or_default(),

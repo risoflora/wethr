@@ -33,8 +33,8 @@ pub struct LocationClient {
 
 #[derive(Clone, Debug, Deserialize)]
 struct LocationResponse {
-    pub country: Option<String>,
     pub city: Option<String>,
+    pub country_name: Option<String>,
     pub latitude: Option<f32>,
     pub longitude: Option<f32>,
 }
@@ -42,8 +42,8 @@ struct LocationResponse {
 impl Default for LocationResponse {
     fn default() -> Self {
         Self {
-            country: Default::default(),
             city: Default::default(),
+            country_name: Default::default(),
             latitude: Default::default(),
             longitude: Default::default(),
         }
@@ -54,7 +54,9 @@ impl From<LocationResponse> for Location {
     fn from(response: LocationResponse) -> Self {
         Self {
             city: response.city.unwrap_or("N/D".to_string()),
-            country: response.country.unwrap_or("N/D".to_string()),
+            state_code: None,
+            country_code: None,
+            country: response.country_name,
             coordinates: Coordinates::new(
                 response.latitude.unwrap_or_default(),
                 response.longitude.unwrap_or_default(),
@@ -97,6 +99,7 @@ impl Display for LocationQuery {
 #[derive(Clone, Debug, Deserialize)]
 struct LocationQueryResponse {
     pub name: Option<String>,
+    pub state: Option<String>,
     pub country: Option<String>,
     pub lat: Option<f32>,
     pub lon: Option<f32>,
@@ -106,6 +109,7 @@ impl Default for LocationQueryResponse {
     fn default() -> Self {
         Self {
             name: Default::default(),
+            state: Default::default(),
             country: Default::default(),
             lat: Default::default(),
             lon: Default::default(),
@@ -117,7 +121,9 @@ impl From<LocationQueryResponse> for Location {
     fn from(response: LocationQueryResponse) -> Self {
         Self {
             city: response.name.unwrap_or("N/D".to_string()),
-            country: response.country.unwrap_or("N/D".to_string()),
+            state_code: response.state,
+            country_code: response.country,
+            country: None,
             coordinates: Coordinates::new(
                 response.lat.unwrap_or_default(),
                 response.lon.unwrap_or_default(),
@@ -226,7 +232,7 @@ mod tests {
     fn location_from_response() {
         let json = "{
                 \"city\": \"Monteiro\",
-                \"country\": \"Brazil\",
+                \"country_name\": \"Brazil\",
                 \"latitude\": -7.9194,
                 \"longitude\": -37.175
             }";
@@ -234,7 +240,7 @@ mod tests {
         assert!(response.is_ok());
         let location: Location = response.unwrap().into();
         assert_eq!(location.city, "Monteiro");
-        assert_eq!(location.country, "Brazil");
+        assert_eq!(location.country, Some("Brazil".to_string()));
         assert_eq!(location.coordinates.latitude, -7.9194);
         assert_eq!(location.coordinates.longitude, -37.175);
     }
@@ -256,7 +262,8 @@ mod tests {
     fn location_from_query_response() {
         let json = "{
                 \"name\": \"Monteiro\",
-                \"country\": \"Brazil\",
+                \"state\": \"PB\",
+                \"country\": \"BR\",
                 \"lat\": -7.9194,
                 \"lon\": -37.175
             }";
@@ -264,7 +271,8 @@ mod tests {
         assert!(response.is_ok());
         let location: Location = response.unwrap().into();
         assert_eq!(location.city, "Monteiro");
-        assert_eq!(location.country, "Brazil");
+        assert_eq!(location.state_code, Some("PB".to_string()));
+        assert_eq!(location.country_code, Some("BR".to_string()));
         assert_eq!(location.coordinates.latitude, -7.9194);
         assert_eq!(location.coordinates.longitude, -37.175);
     }
@@ -332,18 +340,21 @@ Coordinates:
   Longitude: -81.233
 
 City: London
+State code: OH
 Country code: US
 Coordinates:
   Latitude: 39.8865
   Longitude: -83.4483
 
 City: London
+State code: KY
 Country code: US
 Coordinates:
   Latitude: 37.129
   Longitude: -84.0833
 
 City: London
+State code: CA
 Country code: US
 Coordinates:
   Latitude: 36.4761

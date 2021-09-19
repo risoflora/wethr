@@ -22,6 +22,8 @@ pub enum LocationClientError {
     Client(#[from] ClientError),
     #[error("Wrong query parameter")]
     WrongQueryParam,
+    #[error("Returning {0} cities, please choose one:\n{1}")]
+    MoreThanOne(usize, String),
 }
 
 #[derive(Debug)]
@@ -124,6 +126,27 @@ impl From<LocationQueryResponse> for Location {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct LocationQueryResponses {
+    vec: Vec<LocationQueryResponse>,
+}
+
+impl LocationQueryResponses {
+    fn new(vec: Vec<LocationQueryResponse>) -> Self {
+        Self { vec }
+    }
+}
+
+impl Display for LocationQueryResponses {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        for res in &self.vec {
+            let loc: Location = res.clone().into();
+            write!(f, "\n{}\n", loc.to_string())?;
+        }
+        Ok(())
+    }
+}
+
 impl LocationClient {
     pub fn new() -> Self {
         Self {
@@ -152,13 +175,20 @@ impl LocationClient {
             return Err(LocationClientError::WrongQueryParam);
         };
         let url = format!(
-            "{url}?q={query}&limit=1&appid={appid}",
+            "{url}?q={query}&limit=5&appid={appid}",
             url = URL_QUERY_LOCATION,
             query = query,
             appid = TOKEN
         );
-        let res: Vec<LocationQueryResponse> = self.inner.build()?.get(&url).await?;
+        let res = LocationQueryResponses::new(self.inner.build()?.get(&url).await?);
+        if res.vec.len() > 1 {
+            return Err(LocationClientError::MoreThanOne(
+                res.vec.len(),
+                res.to_string(),
+            ));
+        }
         let loc = res
+            .vec
             .first()
             .unwrap_or(&LocationQueryResponse::default())
             .clone();
@@ -181,7 +211,10 @@ mod tests {
 
     use tokio::time::sleep;
 
-    use super::{Location, LocationClient, LocationQuery, LocationQueryResponse, LocationResponse};
+    use super::{
+        Location, LocationClient, LocationQuery, LocationQueryResponse, LocationQueryResponses,
+        LocationResponse,
+    };
 
     #[tokio::test]
     async fn client_get() {
@@ -214,6 +247,9 @@ mod tests {
 
         let query = LocationQuery::from("".to_string());
         assert!(LocationClient::new().get_by_query(&query).await.is_err());
+
+        let query = LocationQuery::from("london".to_string());
+        assert!(LocationClient::new().get_by_query(&query).await.is_err());
     }
 
     #[test]
@@ -243,5 +279,77 @@ mod tests {
         assert_eq!(query.to_string(), "joão pessoa,pb");
         let query = LocationQuery::from("joão pessoa,pb,br".to_string());
         assert_eq!(query.to_string(), "joão pessoa,pb,br");
+    }
+
+    #[test]
+    fn location_query_responses_display() {
+        let json = "[
+            {
+              \"name\": \"London\",
+              \"lat\": 51.5085,
+              \"lon\": -0.1257,
+              \"country\": \"GB\"
+            },
+            {
+              \"name\": \"London\",
+              \"lat\": 42.9834,
+              \"lon\": -81.233,
+              \"country\": \"CA\"
+            },
+            {
+              \"name\": \"London\",
+              \"lat\": 39.8865,
+              \"lon\": -83.4483,
+              \"country\": \"US\",
+              \"state\": \"OH\"
+            },
+            {
+              \"name\": \"London\",
+              \"lat\": 37.129,
+              \"lon\": -84.0833,
+              \"country\": \"US\",
+              \"state\": \"KY\"
+            },
+            {
+              \"name\": \"London\",
+              \"lat\": 36.4761,
+              \"lon\": -119.4432,
+              \"country\": \"US\",
+              \"state\": \"CA\"
+            }
+          ]";
+        let text = "
+City: London
+Country code: GB
+Coordinates:
+  Latitude: 51.5085
+  Longitude: -0.1257
+
+City: London
+Country code: CA
+Coordinates:
+  Latitude: 42.9834
+  Longitude: -81.233
+
+City: London
+Country code: US
+Coordinates:
+  Latitude: 39.8865
+  Longitude: -83.4483
+
+City: London
+Country code: US
+Coordinates:
+  Latitude: 37.129
+  Longitude: -84.0833
+
+City: London
+Country code: US
+Coordinates:
+  Latitude: 36.4761
+  Longitude: -119.4432
+";
+        let res = LocationQueryResponses::new(serde_json::from_str(json).unwrap());
+        assert_eq!(res.to_string(), text);
     }
 }

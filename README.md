@@ -11,7 +11,7 @@ Command line weather tool.
 ## Usage
 
 ```
-Usage: wethr [options] [city[,state][,country]]
+Usage: wethr [options] [city name[,state code][,country code]]
 
 Options:
     -m, --metric        Weather in metric units (compatibility)

@@ -122,8 +122,8 @@ impl From<LocationQueryResponse> for Location {
         Self {
             city: response.name.unwrap_or("N/D".to_string()),
             state_code: response.state,
-            country_code: response.country,
-            country: None,
+            country_code: None,
+            country: response.country,
             coordinates: Coordinates::new(
                 response.lat.unwrap_or_default(),
                 response.lon.unwrap_or_default(),

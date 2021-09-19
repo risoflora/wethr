@@ -177,18 +177,15 @@ impl WeatherClient {
         coordinates: &Coordinates,
         units: Units,
     ) -> Result<Weather, WeatherClientError> {
-        let res: WeatherResponse = self
-            .inner
-            .build()?
-            .get(&format!(
-                "{}?lat={lat}&lon={lon}&units={units}&appid={appid}",
-                URL_WEATHER,
-                lat = coordinates.latitude,
-                lon = coordinates.longitude,
-                appid = TOKEN.to_string(),
-                units = units.to_string()
-            ))
-            .await?;
+        let url = format!(
+            "{}?lat={lat}&lon={lon}&units={units}&appid={appid}",
+            URL_WEATHER,
+            lat = coordinates.latitude,
+            lon = coordinates.longitude,
+            appid = TOKEN.to_string(),
+            units = units.to_string()
+        );
+        let res: WeatherResponse = self.inner.build()?.get(&url).await?;
         Ok(res.into())
     }
 

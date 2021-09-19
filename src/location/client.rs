@@ -51,12 +51,12 @@ impl Default for LocationResponse {
 impl From<LocationResponse> for Location {
     fn from(response: LocationResponse) -> Self {
         Self {
-            country: response.country.unwrap_or("N/D".to_uppercase()),
-            city: response.city.unwrap_or("N/D".to_uppercase()),
-            coordinates: Coordinates {
-                latitude: response.latitude.unwrap_or_default(),
-                longitude: response.longitude.unwrap_or_default(),
-            },
+            city: response.city.unwrap_or("N/D".to_string()),
+            country: response.country.unwrap_or("N/D".to_string()),
+            coordinates: Coordinates::new(
+                response.latitude.unwrap_or_default(),
+                response.longitude.unwrap_or_default(),
+            ),
         }
     }
 }
@@ -114,12 +114,12 @@ impl Default for LocationQueryResponse {
 impl From<LocationQueryResponse> for Location {
     fn from(response: LocationQueryResponse) -> Self {
         Self {
-            country: response.country.unwrap_or("N/D".to_uppercase()),
-            city: response.name.unwrap_or("N/D".to_uppercase()),
-            coordinates: Coordinates {
-                latitude: response.lat.unwrap_or_default(),
-                longitude: response.lon.unwrap_or_default(),
-            },
+            city: response.name.unwrap_or("N/D".to_string()),
+            country: response.country.unwrap_or("N/D".to_string()),
+            coordinates: Coordinates::new(
+                response.lat.unwrap_or_default(),
+                response.lon.unwrap_or_default(),
+            ),
         }
     }
 }
@@ -192,16 +192,16 @@ mod tests {
     #[test]
     fn location_from_response() {
         let json = "{
-                \"country\": \"Brazil\",
                 \"city\": \"Monteiro\",
+                \"country\": \"Brazil\",
                 \"latitude\": -7.9194,
                 \"longitude\": -37.175
             }";
         let response = serde_json::from_str::<LocationResponse>(json);
         assert!(response.is_ok());
         let location: Location = response.unwrap().into();
-        assert_eq!(location.country, "Brazil");
         assert_eq!(location.city, "Monteiro");
+        assert_eq!(location.country, "Brazil");
         assert_eq!(location.coordinates.latitude, -7.9194);
         assert_eq!(location.coordinates.longitude, -37.175);
     }

@@ -4,9 +4,18 @@ pub struct Coordinates {
     pub longitude: f32,
 }
 
+impl Coordinates {
+    pub fn new(latitude: f32, longitude: f32) -> Self {
+        Self {
+            latitude,
+            longitude,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Location {
-    pub country: String,
     pub city: String,
+    pub country: String,
     pub coordinates: Coordinates,
 }

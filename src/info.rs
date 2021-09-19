@@ -101,10 +101,7 @@ mod tests {
         let location = Location {
             country: "Brazil".to_string(),
             city: "Monteiro".to_string(),
-            coordinates: Coordinates {
-                latitude: -7.9194,
-                longitude: -37.175,
-            },
+            coordinates: Coordinates::new(-7.9194, -37.175),
         };
         let weather = Weather {
             temperature: 25.8,

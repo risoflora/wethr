@@ -104,7 +104,7 @@ impl Args {
     fn parse_help(opts: &OptsOptions, matches: &Matches) -> Option<String> {
         if matches.opt_present("h") {
             Some(opts.usage(&format!(
-                "Usage: {} [options] [city[,state][,country]]",
+                "Usage: {} [options] [city name[,state code][,country code]]",
                 consts::PROGRAM_NAME
             )))
         } else {
@@ -242,7 +242,7 @@ mod tests {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.help, None);
 
-        let help = "Usage: wethr [options] [city[,state][,country]]
+        let help = "Usage: wethr [options] [city name[,state code][,country code]]
 
 Options:
     -m, --metric        Weather in metric units (compatibility)

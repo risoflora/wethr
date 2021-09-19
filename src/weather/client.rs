@@ -218,10 +218,7 @@ mod tests {
     #[tokio::test]
     async fn client_get_with_units() {
         sleep(Duration::from_secs(1)).await;
-        let coordinates = Coordinates {
-            latitude: -7.9194,
-            longitude: -37.175,
-        };
+        let coordinates = Coordinates::new(-7.9194, -37.175);
         assert!(WeatherClient::new()
             .get_with_units(&coordinates, Units::Fahrenheit)
             .await
@@ -231,10 +228,7 @@ mod tests {
     #[tokio::test]
     async fn client_get() {
         sleep(Duration::from_secs(1)).await;
-        let coordinates = Coordinates {
-            latitude: -7.9194,
-            longitude: -37.175,
-        };
+        let coordinates = Coordinates::new(-7.9194, -37.175);
         assert!(WeatherClient::new().get(&coordinates).await.is_ok());
     }
 

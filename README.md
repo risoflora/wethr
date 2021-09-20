@@ -55,6 +55,7 @@ Pull Requests and Issues are welcome!
 - [x] Silent mode
 - [x] Full info
 - [x] Query by city name\[,state code\[,country code\]\]
+- [ ] Location provider
 - [ ] Proxy support
 
 ## Thanks

@@ -33,34 +33,18 @@ pub struct LocationClient {
 
 #[derive(Clone, Debug, Deserialize)]
 struct LocationResponse {
-    pub city: Option<String>,
-    pub country_name: Option<String>,
-    pub latitude: Option<f32>,
-    pub longitude: Option<f32>,
-}
-
-impl Default for LocationResponse {
-    fn default() -> Self {
-        Self {
-            city: Default::default(),
-            country_name: Default::default(),
-            latitude: Default::default(),
-            longitude: Default::default(),
-        }
-    }
+    pub city: String,
+    pub country_name: String,
+    pub latitude: f32,
+    pub longitude: f32,
 }
 
 impl From<LocationResponse> for Location {
     fn from(response: LocationResponse) -> Self {
         Self {
-            city: response.city.unwrap_or("N/D".to_string()),
-            state_code: None,
-            country_code: None,
+            city: response.city,
             country: response.country_name,
-            coordinates: Coordinates::new(
-                response.latitude.unwrap_or_default(),
-                response.longitude.unwrap_or_default(),
-            ),
+            coordinates: Coordinates::new(response.latitude, response.longitude),
         }
     }
 }
@@ -98,11 +82,21 @@ impl Display for LocationQuery {
 
 #[derive(Clone, Debug, Deserialize)]
 struct LocationQueryResponse {
-    pub name: Option<String>,
+    pub name: String,
     pub state: Option<String>,
     pub country: Option<String>,
-    pub lat: Option<f32>,
-    pub lon: Option<f32>,
+    pub lat: f32,
+    pub lon: f32,
+}
+
+impl From<LocationQueryResponse> for Location {
+    fn from(response: LocationQueryResponse) -> Self {
+        Self {
+            city: response.name,
+            country: response.country.unwrap_or("N/D".to_string()),
+            coordinates: Coordinates::new(response.lat, response.lon),
+        }
+    }
 }
 
 impl Default for LocationQueryResponse {
@@ -117,18 +111,18 @@ impl Default for LocationQueryResponse {
     }
 }
 
-impl From<LocationQueryResponse> for Location {
-    fn from(response: LocationQueryResponse) -> Self {
-        Self {
-            city: response.name.unwrap_or("N/D".to_string()),
-            state_code: response.state,
-            country_code: response.country,
-            country: None,
-            coordinates: Coordinates::new(
-                response.lat.unwrap_or_default(),
-                response.lon.unwrap_or_default(),
-            ),
+impl Display for LocationQueryResponse {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "City: {}\n", &self.name)?;
+        if let Some(state_code) = &self.state {
+            write!(f, "State code: {}\n", state_code)?;
         }
+        if let Some(country_code) = &self.country {
+            write!(f, "Country code: {}\n", country_code)?;
+        }
+        write!(f, "Coordinates:\n")?;
+        write!(f, "  Latitude: {}\n", self.lat)?;
+        write!(f, "  Longitude: {}", self.lon)
     }
 }
 
@@ -146,8 +140,7 @@ impl LocationQueryResponses {
 impl Display for LocationQueryResponses {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         for res in &self.vec {
-            let loc: Location = res.clone().into();
-            write!(f, "\n{}\n", loc.to_string())?;
+            write!(f, "\n{}\n", res.to_string())?;
         }
         Ok(())
     }
@@ -240,7 +233,7 @@ mod tests {
         assert!(response.is_ok());
         let location: Location = response.unwrap().into();
         assert_eq!(location.city, "Monteiro");
-        assert_eq!(location.country, Some("Brazil".to_string()));
+        assert_eq!(location.country, "Brazil");
         assert_eq!(location.coordinates.latitude, -7.9194);
         assert_eq!(location.coordinates.longitude, -37.175);
     }
@@ -271,8 +264,7 @@ mod tests {
         assert!(response.is_ok());
         let location: Location = response.unwrap().into();
         assert_eq!(location.city, "Monteiro");
-        assert_eq!(location.state_code, Some("PB".to_string()));
-        assert_eq!(location.country_code, Some("BR".to_string()));
+        assert_eq!(location.country, "BR");
         assert_eq!(location.coordinates.latitude, -7.9194);
         assert_eq!(location.coordinates.longitude, -37.175);
     }
@@ -287,6 +279,51 @@ mod tests {
         assert_eq!(query.to_string(), "joão pessoa,pb");
         let query = LocationQuery::from("joão pessoa,pb,br".to_string());
         assert_eq!(query.to_string(), "joão pessoa,pb,br");
+    }
+
+    #[test]
+    fn location_query_response_display() {
+        let location = LocationQueryResponse {
+            name: "Monteiro".to_string(),
+            state: Some("PB".to_string()),
+            country: Some("BR".to_string()),
+            lat: 12.34,
+            lon: 56.78,
+        };
+        let text = "City: Monteiro
+State code: PB
+Country code: BR
+Coordinates:
+  Latitude: 12.34
+  Longitude: 56.78";
+        assert_eq!(location.to_string(), text);
+
+        let location = LocationQueryResponse {
+            name: "Monteiro".to_string(),
+            state: None,
+            country: Some("BR".to_string()),
+            lat: 12.34,
+            lon: 56.78,
+        };
+        let text = "City: Monteiro
+Country code: BR
+Coordinates:
+  Latitude: 12.34
+  Longitude: 56.78";
+        assert_eq!(location.to_string(), text);
+
+        let location = LocationQueryResponse {
+            name: "Monteiro".to_string(),
+            state: None,
+            country: None,
+            lat: 12.34,
+            lon: 56.78,
+        };
+        let text = "City: Monteiro
+Coordinates:
+  Latitude: 12.34
+  Longitude: 56.78";
+        assert_eq!(location.to_string(), text);
     }
 
     #[test]

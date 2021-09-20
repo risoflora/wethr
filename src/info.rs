@@ -33,7 +33,7 @@ impl Display for Info<'_> {
             f,
             "{city}, {country}: {temperature}{units} {emoji}",
             city = self.location.city,
-            country = self.location.country.as_ref().unwrap_or(&"N/D".to_string()),
+            country = self.location.country,
             temperature = self.weather.temperature,
             units = units,
             emoji = self.weather.icon
@@ -100,9 +100,7 @@ mod tests {
     fn info_format() {
         let location = Location {
             city: "Monteiro".to_string(),
-            state_code: None,
-            country_code: None,
-            country: Some("Brazil".to_string()),
+            country: "Brazil".to_string(),
             coordinates: Coordinates::new(-7.9194, -37.175),
         };
         let weather = Weather {

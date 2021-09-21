@@ -1,6 +1,6 @@
 [package]
 name = "wethr"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["Silvio Clecio (silvioprog) <silvioprog@gmail.com>"]
 license = "MIT"
 description = "Command line weather tool."
@@ -13,9 +13,9 @@ edition = "2018"
 
 [profile.release]
 lto = true
-opt-level = 'z'
+opt-level = "z"
 codegen-units = 1
-panic = 'abort'
+panic = "abort"
 
 [dependencies]
 thiserror = "1.0"

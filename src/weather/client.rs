@@ -213,7 +213,7 @@ mod tests {
     use crate::{location::model::Coordinates, units::Units};
 
     #[tokio::test]
-    async fn client_get_with_units() {
+    async fn weather_client_get_with_units() {
         sleep(Duration::from_secs(1)).await;
         let coordinates = Coordinates::new(-7.9194, -37.175);
         assert!(WeatherClient::new()
@@ -223,7 +223,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn client_get() {
+    async fn weather_client_get() {
         sleep(Duration::from_secs(1)).await;
         let coordinates = Coordinates::new(-7.9194, -37.175);
         assert!(WeatherClient::new().get(&coordinates).await.is_ok());

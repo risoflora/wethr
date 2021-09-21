@@ -12,7 +12,12 @@ use crate::{
     location::model::{Coordinates, Location},
 };
 
-pub const URL_LOCATION: &str = "https://ipapi.co/json/";
+pub const URL_LOCATIONS: [&str; 4] = [
+    "http://ip-api.com/json/",
+    "https://ipapi.co/json/",
+    "https://freegeoip.app/json/",
+    "https://ipwhois.app/json/",
+];
 
 pub const URL_QUERY_LOCATION: &str = "https://api.openweathermap.org/geo/1.0/direct";
 
@@ -20,6 +25,8 @@ pub const URL_QUERY_LOCATION: &str = "https://api.openweathermap.org/geo/1.0/dir
 pub enum LocationClientError {
     #[error(transparent)]
     Client(#[from] ClientError),
+    #[error("Wrong location provider")]
+    WrongLocationProvider,
     #[error("Wrong query parameter")]
     WrongQueryParam,
     #[error("Returning {0} cities, please choose one:\n{1}")]
@@ -31,11 +38,16 @@ pub struct LocationClient {
     inner: ClientBuilder,
 }
 
+pub type LocationProvider = i8;
+
 #[derive(Clone, Debug, Deserialize)]
 struct LocationResponse {
     pub city: String,
-    pub country_name: String,
+    pub country: Option<String>,
+    pub country_name: Option<String>,
+    #[serde(alias = "lat")]
     pub latitude: f32,
+    #[serde(alias = "lon")]
     pub longitude: f32,
 }
 
@@ -43,7 +55,9 @@ impl From<LocationResponse> for Location {
     fn from(response: LocationResponse) -> Self {
         Self {
             city: response.city,
-            country: response.country_name,
+            country: response
+                .country_name
+                .unwrap_or(response.country.unwrap_or("N/D".to_string())),
             coordinates: Coordinates::new(response.latitude, response.longitude),
         }
     }
@@ -161,8 +175,19 @@ impl LocationClient {
         self.with_inner(|inner| inner.set_timeout(timeout))
     }
 
-    pub async fn get(self) -> Result<Location, LocationClientError> {
-        let res: LocationResponse = self.inner.build()?.get(URL_LOCATION).await?;
+    pub async fn get(
+        self,
+        provider: Option<LocationProvider>,
+    ) -> Result<Location, LocationClientError> {
+        let provider_number = provider.unwrap_or_default();
+        if provider_number < 0 || provider_number as usize >= URL_LOCATIONS.len() {
+            return Err(LocationClientError::WrongLocationProvider);
+        }
+        let res: LocationResponse = self
+            .inner
+            .build()?
+            .get(URL_LOCATIONS[provider_number as usize])
+            .await?;
         Ok(res.into())
     }
 
@@ -216,9 +241,13 @@ mod tests {
     };
 
     #[tokio::test]
-    async fn client_get() {
+    async fn location_client_get() {
         sleep(Duration::from_secs(1)).await;
-        assert!(LocationClient::new().get().await.is_ok());
+        assert!(LocationClient::new().get(None).await.is_ok());
+        sleep(Duration::from_secs(1)).await;
+        assert!(LocationClient::new().get(Some(-1)).await.is_err());
+        sleep(Duration::from_secs(1)).await;
+        assert!(LocationClient::new().get(Some(10)).await.is_err());
     }
 
     #[test]
@@ -239,7 +268,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn client_get_by_query() {
+    async fn location_client_get_by_query() {
         sleep(Duration::from_secs(1)).await;
         let query = LocationQuery::from("monteiro".to_string());
         assert!(LocationClient::new().get_by_query(&query).await.is_ok());

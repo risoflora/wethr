@@ -3,7 +3,12 @@ use std::{env, result::Result};
 use getopts::{Fail, Matches, Options as OptsOptions};
 use thiserror::Error;
 
-use crate::{consts, options::Options, units::Units};
+use crate::{
+    consts,
+    location::client::{LocationProvider, URL_LOCATIONS},
+    options::Options,
+    units::Units,
+};
 
 #[derive(Debug, Error)]
 pub enum ArgsError {
@@ -29,6 +34,12 @@ impl Args {
             )
             .optopt("c", "connect-timeout", "Connect timeout (in seconds)", "5")
             .optopt("t", "timeout", "Timeout (in seconds)", "30")
+            .optopt(
+                "p",
+                "location-provider",
+                "Location provider",
+                format!("0 to {}", URL_LOCATIONS.len() - 1).as_str(),
+            )
             .optflag("f", "full-info", "Full weather information")
             .optflag("s", "silent", "Silent mode")
             .optflag("v", "version", "Print program version")
@@ -71,6 +82,11 @@ impl Args {
         } else {
             Some(matches.free[0].clone())
         }
+    }
+
+    #[inline]
+    fn parse_location_provider(matches: &Matches) -> Option<LocationProvider> {
+        matches.opt_get("p").unwrap_or_default()
     }
 
     #[inline]
@@ -121,6 +137,7 @@ impl Args {
                 connect_timeout: Self::parse_connect_timeout(&matches),
                 timeout: Self::parse_timeout(&matches),
                 query: Self::parse_query(&matches),
+                location_provider: Self::parse_location_provider(&matches),
                 full_info: Self::parse_full_info(&matches),
                 silent: Self::parse_silent(&matches),
                 version: Self::parse_version(&matches),
@@ -205,6 +222,25 @@ mod tests {
     }
 
     #[test]
+    fn args_parse_location_provider() {
+        let opt = Args::parse(&[]).unwrap();
+        assert_eq!(opt.location_provider, None);
+
+        let opt = Args::parse(&["-p-1".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(-1));
+        let opt = Args::parse(&["-p0".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(0));
+        let opt = Args::parse(&["-p3".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(3));
+        let opt = Args::parse(&["--location-provider=-1".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(-1));
+        let opt = Args::parse(&["--location-provider=0".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(0));
+        let opt = Args::parse(&["--location-provider=3".to_string()]).unwrap();
+        assert_eq!(opt.location_provider, Some(3));
+    }
+
+    #[test]
     fn args_parse_full_info() {
         let opt = Args::parse(&[]).unwrap();
         assert_eq!(opt.full_info, None);
@@ -252,6 +288,8 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -p, --location-provider 0 to 3
+                        Location provider
     -f, --full-info     Full weather information
     -s, --silent        Silent mode
     -v, --version       Print program version

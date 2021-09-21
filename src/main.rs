@@ -20,6 +20,7 @@ async fn main() -> anyhow::Result<()> {
     let connect_timeout = opts.connect_timeout.unwrap_or(CLIENT_CONNECT_TIMEOUT);
     let timeout = opts.timeout.unwrap_or(CLIENT_TIMEOUT);
     let query = opts.query;
+    let location_provider = opts.location_provider;
     let location = spinner
         .set_color(SpinnerColor::Blue)
         .set_message("Detecting your location")
@@ -29,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
                 .set_timeout(Duration::from_secs(timeout));
             match query {
                 Some(query) => location.get_by_query(&LocationQuery::from(query)).await,
-                None => location.get().await,
+                None => location.get(location_provider).await,
             }
         })
         .await?;

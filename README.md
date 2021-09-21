@@ -21,6 +21,8 @@ Options:
     -c, --connect-timeout 5
                         Connect timeout (in seconds)
     -t, --timeout 30    Timeout (in seconds)
+    -p, --location-provider 0 to 3
+                        Location provider
     -f, --full-info     Full weather information
     -s, --silent        Silent mode
     -v, --version       Print program version
@@ -55,7 +57,7 @@ Pull Requests and Issues are welcome!
 - [x] Silent mode
 - [x] Full info
 - [x] Query by city name\[,state code\[,country code\]\]
-- [ ] Location provider
+- [x] Location provider
 - [ ] Proxy support
 
 ## Thanks

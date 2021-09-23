@@ -50,7 +50,7 @@ cargo install wethr
 
 Pull Requests and Issues are welcome!
 
-## Whish list
+## Wish list
 
 - [x] Binaries
 - [x] Tests
@@ -59,6 +59,9 @@ Pull Requests and Issues are welcome!
 - [x] Query by city name\[,state code\[,country code\]\]
 - [x] Location provider
 - [ ] Proxy support
+- [ ] Configure the [OWM](https://openweathermap.org) API token
+- [ ] Template support (e.g.
+      `wethr -t '{city} - Temperature: {temperature} - Humidity: {humidity}'`)
 
 ## Thanks
 

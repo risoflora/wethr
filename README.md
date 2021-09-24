@@ -62,6 +62,7 @@ Pull Requests and Issues are welcome!
 - [ ] Configure the [OWM](https://openweathermap.org) API token
 - [ ] Template support (e.g.
       `wethr -t '{city} - Temperature: {temperature} - Humidity: {humidity}'`)
+- [ ] Forecast support
 
 ## Thanks
 

@@ -79,5 +79,5 @@ This project is licensed under the [MIT license](LICENSE).
 [license-badge]: https://img.shields.io/crates/l/wethr.svg?style=flat-square
 [license-url]: https://github.com/risoflora/wethr/blob/master/LICENSE "MIT license"
 [wethr-url]: https://github.com/risoflora/wethr "Wethr tool"
-[wethr-gif]: https://github.com/risoflora/wethr/raw/master/wethr.gif "Wethr GIF"
+[wethr-gif]: https://github.com/risoflora/wethr/raw/main/wethr.gif "Wethr GIF"
 [twobucks-wethr-url]: https://github.com/twobucks/wethr "Twobucks's wethr"

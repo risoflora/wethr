@@ -72,7 +72,7 @@ This project was inspired by [twobucks's wethr][twobucks-wethr-url].
 
 This project is licensed under the [MIT license](LICENSE).
 
-[ci-cd-badge]: https://img.shields.io/github/workflow/status/risoflora/wethr/CI?style=flat-square "CI/CD"
+[ci-cd-badge]: https://github.com/risoflora/wethr/actions/workflows/CI.yml/badge.svg?style=flat-square "CI/CD"
 [ci-cd-url]: https://github.com/risoflora/wethr/actions/workflows/CI.yml "GitHub actions"
 [crates-badge]: https://img.shields.io/crates/v/wethr.svg?style=flat-square
 [crates-url]: https://crates.io/crates/wethr "Wethr crate"

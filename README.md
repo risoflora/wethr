@@ -66,7 +66,7 @@ Pull Requests and Issues are welcome!
 
 ## Thanks
 
-This project was inspired by [twobucks's wethr][twobucks-wethr-url].
+This project was inspired by [twobucks' wethr][twobucks-wethr-url].
 
 ## License
 

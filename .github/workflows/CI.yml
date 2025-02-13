@@ -19,12 +19,21 @@ jobs:
     strategy:
       matrix:
         job:
-          - os: ubuntu-latest
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            test: false
             publish: true
 
-          - os: macos-latest
+          - target: x86_64-apple-darwin
+            test: false
+            os: macos-latest
 
-          - os: windows-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+
+          - target: x86_64-pc-windows-msvc
+            test: false
+            os: windows-latest
 
     env:
       PROGRAM_NAME: wethr

@@ -21,7 +21,9 @@ jobs:
         job:
           - os: ubuntu-latest
             publish: true
+
           - os: macos-latest
+
           - os: windows-latest
 
     env:

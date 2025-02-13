@@ -66,7 +66,13 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-
+ 
+      - name: Cargo check
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --release --target=${{ matrix.job.target }}
+    
       - name: Cargo test
         uses: actions-rs/cargo@v1
         with:

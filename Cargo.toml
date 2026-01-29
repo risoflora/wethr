@@ -9,7 +9,7 @@ repository = "https://github.com/risoflora/wethr"
 readme = "README.md"
 keywords = ["celsius", "fahrenheit", "temperature", "weather"]
 categories = ["command-line-utilities", "network-programming"]
-edition = "2018"
+edition = "2021"
 
 [profile.release]
 lto = true
@@ -18,16 +18,16 @@ codegen-units = 1
 panic = "abort"
 
 [dependencies]
-thiserror = "1.0"
+thiserror = "2.0"
 anyhow = "1.0"
 getopts = "0.2"
 tokio = { version = "1", features = ["macros"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.11", default-features = false, features = [
+reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls",
     "gzip",
     "json",
 ] }
-indicatif = "0.16"
+indicatif = "0.17"
 humantime = "2.1"

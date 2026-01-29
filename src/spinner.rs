@@ -46,7 +46,7 @@ pub struct Spinner {
 impl Spinner {
     pub fn new() -> Self {
         Spinner {
-            progress_bar: ProgressBar::with_draw_target(!0, ProgressDrawTarget::stdout()),
+            progress_bar: ProgressBar::with_draw_target(None, ProgressDrawTarget::stdout()),
             silent: false,
         }
     }
@@ -65,7 +65,8 @@ impl Spinner {
             self.progress_bar.set_style(
                 ProgressStyle::default_spinner()
                     .tick_strings(TICK_STRINGS)
-                    .template(&Self::format_tpl(color)),
+                    .template(&Self::format_tpl(color))
+                    .unwrap(),
             );
         }
         self
